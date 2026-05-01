@@ -26,7 +26,13 @@ if st.button("Predict"):
     prediction = model.predict(data)[0]
     score = model.decision_function(data)[0]
 
+    # Convert raw SVM score to a percentage using the sigmoid function
+    # Clip score to avoid overflow in exp
+    safe_score = np.clip(score, -100, 100)
+    probability = 1 / (1 + np.exp(-safe_score))
+    risk_percentage = probability * 100
+
     if prediction == 1:
-        st.error(f"🚨 Fraudulent Transaction (Score: {score:.2f})")
+        st.error(f"🚨 Fraud Risk: {risk_percentage:.0f}%")
     else:
-        st.success(f"✅ Legitimate Transaction (Score: {score:.2f})")
+        st.success(f"✅ Fraud Risk: {risk_percentage:.0f}%")
